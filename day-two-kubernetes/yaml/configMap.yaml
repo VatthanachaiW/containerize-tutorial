@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-configmap
+  namespace: demo
+data:
+  appsettings.Production.json: |-
+    {
+     "Kestrel": {
+        "EndPoints": {
+          "Http": {
+            "Url": "http://+:80"
+          },
+          "Https": {
+            "Url": "https://+:443"
+          }
+        }
+      },
+      "CORSConfig": [
+          {
+            "AllowName": "DefaultCORS",
+            "Url": "*",
+            "Headers": [ "*" ],
+            "Methods": [ "*" ]
+          }
+        ],
+        "CacheOption": {
+          "SlidingExpiration": 10,
+          "AbSoluteExpire": 2
+        },
+        "LanguageDatabaseSetting": {
+          "ConnectionName": "LanguageConnection",
+          "Schema": "language",
+          "DBType": "PostgreSql",
+          "RetryOnFailed": 5,
+          "Timeout": 100
+        },
+        "EncryptionSetting": {
+          "Key": "+jVPBBv3FnxM+hnZ6PwQsM96pdkE8xRbAYWdH61XKsM=",
+          "IV": "sLZEQ47X9o2fPWyWQUZxUg=="
+        },
+        "LanguageConnection": "Host=postgresql.postgresql-15-4.svc.cluster.local;Port=5432;Username=nexus;Password=fmXGrhB8Z3y2QE7PsqdYjg6x4;Database=languages;CommandTimeout=600",
+    }

@@ -19,35 +19,23 @@ spec:
         runAsGroup: 1000
       containers:
         - name: demo-webapi-deployment
-          image: demo-webapi:latest
+          image: province-api:latest
           imagePullPolicy: IfNotPresent # policy to download docker image
           resources: #limit to execute docker
             limits:
               memory: "256Mi"
               cpu: "256m"
           ports:
-            - containerPort: 443
+            - containerPort: 8080
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Production #env
-            - name: ASPNETCORE_Kestrel__Certificates__Default__Password
-              value: "" # cert password if required
-            - name: ASPNETCORE_Kestrel__Certificates__Default__Path
-              value: /secrets/tls-cert/reiven-tls-cert.pfx # cert path to map
-            - name: ASPNETCORE_HTTPS_PORT
-              value: "443" # default port to expose if not specific in docker file
           volumeMounts:
             - name: demo-webapi-appsetting
-              mountPath: /app/appsettings.Production.json
+              mountPath: /home/app/appsettings.Production.json
               subPath: appsettings.Production.json
-              readOnly: true
-            - name: demo-webapi-cert
-              mountPath: /secrets/tls-cert
               readOnly: true
       volumes:
         - name: demo-webapi-appsetting
           secret:
-            secretName: dedemo-webapi-production-appsetting
-        - name: demo-webapi-cert
-          secret:
-            secretName: demo-webapi-cert
+            secretName: demo-api-secret

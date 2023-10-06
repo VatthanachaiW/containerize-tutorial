@@ -1,3 +1,5 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Demo.API.BackgroundServices;
 using Demo.API.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +13,32 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
 
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+builder.Host.ConfigureContainer<ContainerBuilder>(builder =>
+{
+    builder.Register((context, config) =>
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var dbContextOption = new DbContextOptionsBuilder<DemoDbContext>();
+        return dbContextOption.UseNpgsql(connectionString, optionsBuilder =>
+        {
+            optionsBuilder.EnableRetryOnFailure(20);
+            optionsBuilder.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+            optionsBuilder.CommandTimeout(9000);
+        }).Options;
+    }).SingleInstance();
+
+    builder.Register((com, _) =>
+        {
+            var contextOptions = com.Resolve<DbContextOptions<DemoDbContext>>();
+
+            return new DemoDbContext(contextOptions);
+        }).AsImplementedInterfaces()
+        .AsSelf()
+        .InstancePerLifetimeScope();
+});
+
+
 builder.Services.AddDbContext<DemoDbContext>(opt =>
 {
     opt.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), options =>
@@ -19,8 +47,6 @@ builder.Services.AddDbContext<DemoDbContext>(opt =>
         options.CommandTimeout(200);
     });
 });
-
-builder.Services.AddScoped<IDemoDbContext, DemoDbContext>();
 
 builder.Services.AddHostedService<DatabaseMigrationService>();
 

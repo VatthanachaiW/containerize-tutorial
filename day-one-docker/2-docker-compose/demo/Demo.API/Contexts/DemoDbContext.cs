@@ -5,7 +5,7 @@ namespace Demo.API.Contexts;
 
 public class DemoDbContext : DbContext, IDemoDbContext
 {
-    public DemoDbContext(DbContextOptions options) : base(options)
+    public DemoDbContext(DbContextOptions<DemoDbContext> options) : base(options)
     {
     }
 

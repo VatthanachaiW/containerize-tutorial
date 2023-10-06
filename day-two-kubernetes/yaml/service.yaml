@@ -4,10 +4,10 @@ metadata:
   name: demo-webapi-service
   namespace: demo
   labels:
-    app: demo-webapi 
+    app: demo-webapi-deployment
 spec:
   selector:
     app: demo-webapi-deployment
   ports:
-  - port: 443
-    targetPort: 443
+  - port: 8000
+    targetPort: 8080

@@ -1,0 +1,24 @@
+version: "<docker compose version>"
+services:
+  <service name>: #Builder service
+    image: <image name for service>
+    build:
+      context: . #Base folder to build
+      dockerfile: ./Dockerfile #Docker file
+    ports:
+      - <Host port>:<Container port>
+    environment: #Environment Variable to use in container
+      - <Environment Key>=<value>
+  <service name>: #Service from base image on public or existing
+    image: <image name for service>
+    container_name: <Name for container on execute>
+    ports:
+      - <Host port>:<Container port>
+    environment: #Check from image document 
+      - <Environment Key>=<value>
+    volumes:
+      - ./<current / folder>:/<path in container>      
+    deploy:
+      replicas: 1 #<container count>
+      restart_policy:
+        condition: on-failure # Restart policy

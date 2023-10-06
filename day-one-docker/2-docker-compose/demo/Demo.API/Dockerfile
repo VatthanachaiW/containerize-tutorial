@@ -1,11 +1,9 @@
 ARG VERSION=7.0-alpine
 
 FROM mcr.microsoft.com/dotnet/sdk:$VERSION as builder
-ARG APPNAME=Demo.API
-
 WORKDIR /src
-COPY ./$APPNAME ./$APPNAME
-RUN dotnet publish "$APPNAME/$APPNAME.csproj" \
+COPY ./Demo.API ./Demo.API
+RUN dotnet publish "Demo.API/Demo.API.csproj" \
 	-c Release \
 	-o /app/publish \
 	-r alpine-x64 \
@@ -14,15 +12,14 @@ RUN dotnet publish "$APPNAME/$APPNAME.csproj" \
 	/p:PublishReadyToRunShowWarnings=true \
 	/p:PublishSingleFile=true \
 	/p:TargetLatestRuntimePatch=true 
-RUN chmod u+x,o+x /app/publish/$APPNAME
+RUN chmod u+x,o+x /app/publish/Demo.API
 
 FROM mcr.microsoft.com/dotnet/aspnet:$VERSION AS final
-ARG APPNAME=Demo.API
 
 ENV APP_USER=app \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     DOTNET_RUNNING_IN_CONTAINER=true \
-    ASPNETCORE_URLS=http://+:8080;https://+:443 \
+    ASPNETCORE_URLS=http://+:8080 \
     TZ=Asia/Bangkok
 
 RUN apk add libgdiplus --repository https://dl-3.alpinelinux.org/alpine/edge/testing/ && \
@@ -40,9 +37,9 @@ CMD	"/harden.sh"
 RUN rm harden.sh
 
 COPY --from=builder --chown=$APP_USER:$APP_USER /$APP_USER/publish .
-CMD  "/post-install.sh ${APPNAME}"
+CMD  "/post-install.sh Demo.API"
 RUN rm post-install.sh
 
 USER $APP_USER
-EXPOSE 8080 443
-ENTRYPOINT ["./${APPNAME}"]
+EXPOSE 8080
+ENTRYPOINT ["./Demo.API"]
